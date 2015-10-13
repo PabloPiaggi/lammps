@@ -1,0 +1,1 @@
+/local/piaggp/Programs/PLUMED/Variational/plumed2-variational-approach//src/lib/Plumed.inc.static

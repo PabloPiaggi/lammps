@@ -33,7 +33,8 @@ FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
      int me;
      MPI_Comm inter_comm;
      MPI_Comm_rank(world,&me);
-     MPI_Comm_split(MPI_COMM_WORLD,me,0,&inter_comm);
+     // Change MPI_COMM_WORLD to universe->uworld which seems more appropriate
+     MPI_Comm_split(universe->uworld,me,0,&inter_comm);
      p->cmd("GREX setMPIIntracomm",&world);
      if (me == 0) {
         // The inter-partition communicator is only defined for the root in
@@ -97,7 +98,7 @@ FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
     else if(next==1){
       // Each replica writes an independent log file
       //  with suffix equal to the replica id
-      char str_num[32], *logFile;     
+      char str_num[32], *logFile;
       sprintf(str_num,".%d",universe->iworld);
       logFile=arg[i];
       strcat(logFile,str_num);
@@ -136,7 +137,7 @@ FixPlumed::~FixPlumed()
 
 int FixPlumed::setmask()
 {
-  // set with a bitmask how and when apply the force from plumed 
+  // set with a bitmask how and when apply the force from plumed
   int mask = 0;
   mask |= POST_FORCE;
   mask |= THERMO_ENERGY;
@@ -214,7 +215,7 @@ void FixPlumed::post_force(int vflag)
   box[2][1]=domain->h[3];
   box[2][0]=domain->h[4];
   box[1][0]=domain->h[5];
-  
+
 // local variable with timestep:
   int step=update->ntimestep;
 
@@ -248,4 +249,3 @@ void FixPlumed::min_post_force(int vflag)
 {
   post_force(vflag);
 }
-
