@@ -25,6 +25,7 @@ class FixPlumed : public Fix {
   void post_force(int);
   void post_force_respa(int, int, int);
   void min_post_force(int);
+  double compute_scalar();
 
  private:
 // pointer to plumed object:
@@ -39,6 +40,8 @@ class FixPlumed : public Fix {
   double*charges;
 // this is something to enable respa
   int nlevels_respa;
+// output bias potential
+  double bias;
 };
 
 };

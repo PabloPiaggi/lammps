@@ -124,6 +124,7 @@ FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
   p->cmd("setTimestep",&dt);
 
   virial_flag=1;
+  scalar_flag = 1;
 
 // This is the real initialization:
   p->cmd("init");
@@ -227,6 +228,7 @@ void FixPlumed::post_force(int vflag)
   p->cmd("setMasses",&masses[0]);
   if(atom->q) p->cmd("setCharges",&charges[0]);
   p->cmd("setVirial",&virial[0][0]);
+  p->cmd("getBias",&bias);
 
 // do the real calculation:
   p->cmd("calc");
@@ -249,3 +251,10 @@ void FixPlumed::min_post_force(int vflag)
 {
   post_force(vflag);
 }
+
+double FixPlumed::compute_scalar()
+{
+  return bias;
+}
+
+
