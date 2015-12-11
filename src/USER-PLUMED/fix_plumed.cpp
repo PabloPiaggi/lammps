@@ -254,6 +254,8 @@ void FixPlumed::min_post_force(int vflag)
 
 double FixPlumed::compute_scalar()
 {
+  int dummy=1;
+  post_force(dummy);
   return bias;
 }
 
