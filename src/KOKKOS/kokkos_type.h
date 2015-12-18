@@ -25,7 +25,7 @@
   struct lmp_float3 {
     float x,y,z;
     KOKKOS_INLINE_FUNCTION
-    lmp_float3():x(0.0f),z(0.0f),y(0.0f) {}
+    lmp_float3():x(0.0f),y(0.0f),z(0.0f) {}
 
     KOKKOS_INLINE_FUNCTION
     void operator += (const lmp_float3& tmp) {
@@ -56,7 +56,7 @@
   struct lmp_double3 {
     double x,y,z;
     KOKKOS_INLINE_FUNCTION
-    lmp_double3():x(0.0),z(0.0),y(0.0) {}
+    lmp_double3():x(0.0),y(0.0),z(0.0) {}
 
     KOKKOS_INLINE_FUNCTION
     void operator += (const lmp_double3& tmp) {
@@ -262,7 +262,7 @@ typedef tdual_int_scalar::t_dev_um t_int_scalar_um;
 typedef tdual_int_scalar::t_dev_const_um t_int_scalar_const_um;
 
 typedef Kokkos::
-  DualView<LMP_FLOAT, LMPDeviceType::array_layout, LMPDeviceType> 
+  DualView<LMP_FLOAT, LMPDeviceType::array_layout, LMPDeviceType>
   tdual_float_scalar;
 typedef tdual_float_scalar::t_dev t_float_scalar;
 typedef tdual_float_scalar::t_dev_const t_float_scalar_const;
@@ -372,7 +372,7 @@ typedef tdual_xfloat_2d::t_dev_um t_xfloat_2d_um;
 typedef tdual_xfloat_2d::t_dev_const_um t_xfloat_2d_const_um;
 typedef tdual_xfloat_2d::t_dev_const_randomread t_xfloat_2d_randomread;
 
-//2d X_FLOAT array n*4 
+//2d X_FLOAT array n*4
 #ifdef LMP_KOKKOS_NO_LEGACY
 typedef Kokkos::DualView<X_FLOAT*[3], Kokkos::LayoutLeft, LMPDeviceType> tdual_x_array;
 #else
@@ -467,7 +467,7 @@ typedef tdual_efloat_2d::t_dev_um t_efloat_2d_um;
 typedef tdual_efloat_2d::t_dev_const_um t_efloat_2d_const_um;
 typedef tdual_efloat_2d::t_dev_const_randomread t_efloat_2d_randomread;
 
-//2d E_FLOAT array n*3 
+//2d E_FLOAT array n*3
 
 typedef Kokkos::DualView<E_FLOAT*[3], Kokkos::LayoutRight, LMPDeviceType> tdual_e_array;
 typedef tdual_e_array::t_dev t_e_array;
@@ -744,5 +744,9 @@ void memset_kokkos (ViewType &view) {
   ViewType::execution_space::fence();
 }
 
+#if defined(KOKKOS_HAVE_CXX11)
+#undef ISFINITE
+#define ISFINITE(x) std::isfinite(x)
+#endif
 
 #endif

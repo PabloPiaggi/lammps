@@ -100,6 +100,8 @@ class Pair : protected Pointers {
   unsigned int datamask;
   unsigned int datamask_ext;
 
+  int allocated;                 // 0/1 = whether arrays are allocated
+                                 //       public so external driver can check
   int compute_flag;              // 0 if skip compute()
 
   // KOKKOS host/device flag and data masks
@@ -142,7 +144,7 @@ class Pair : protected Pointers {
   virtual void compute_outer(int, int) {}
 
   virtual double single(int, int, int, int,
-                        double, double, double, 
+                        double, double, double,
 			double& fforce) {
     fforce = 0.0;
     return 0.0;
@@ -203,7 +205,6 @@ class Pair : protected Pointers {
 
   int special_lj[4];           // copied from force->special_lj for Kokkos
 
-  int allocated;               // 0/1 = whether arrays are allocated
   int suffix_flag;             // suffix compatibility flag
 
                                        // pair_modify settings
