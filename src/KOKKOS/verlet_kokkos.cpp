@@ -11,7 +11,7 @@
    See the README file in the top-level LAMMPS directory.
 ------------------------------------------------------------------------- */
 
-#include "string.h"
+#include <string.h>
 #include "verlet_kokkos.h"
 #include "neighbor.h"
 #include "domain.h"
@@ -42,7 +42,7 @@ using namespace LAMMPS_NS;
 /* ---------------------------------------------------------------------- */
 
 VerletKokkos::VerletKokkos(LAMMPS *lmp, int narg, char **arg) :
-  Verlet(lmp, narg, arg) 
+  Verlet(lmp, narg, arg)
 {
   atomKK = (AtomKokkos *) atom;
 }
@@ -53,8 +53,13 @@ VerletKokkos::VerletKokkos(LAMMPS *lmp, int narg, char **arg) :
 
 void VerletKokkos::setup()
 {
+  if (comm->me == 0 && screen) {
+    fprintf(screen,"Setting up Verlet run ...\n");
+    fprintf(screen,"  Unit style  : %s\n", update->unit_style);
+    fprintf(screen,"  Current step: " BIGINT_FORMAT "\n", update->ntimestep);
+    fprintf(screen,"  Time step   : %g\n", update->dt);
+  }
 
-  if (comm->me == 0 && screen) fprintf(screen,"Setting up run ...\n");
   update->setupflag = 1;
 
   // setup domain, communication and neighboring

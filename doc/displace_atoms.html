@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>displace_atoms command &mdash; LAMMPS 15 May 2015 version documentation</title>
+  <title>displace_atoms command &mdash; LAMMPS 15 Dec 2015 documentation</title>
   
 
   
@@ -32,7 +32,7 @@
   
 
   
-    <link rel="top" title="LAMMPS 15 May 2015 version documentation" href="index.html"/> 
+    <link rel="top" title="LAMMPS 15 Dec 2015 documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -138,6 +138,7 @@
 <pre class="literal-block">
 <em>move</em> args = delx dely delz
   delx,dely,delz = distance to displace in each dimension (distance units)
+  any of delx,dely,delz can be a variable (see below)
 <em>ramp</em> args = ddim dlo dhi dim clo chi
   ddim = <em>x</em> or <em>y</em> or <em>z</em>
   dlo,dhi = displacement distance between dlo and dhi (distance units)
@@ -174,7 +175,23 @@ on a lattice.  For example, in a shear simulation, an initial strain
 can be imposed on the system.  Or two groups of atoms can be brought
 into closer proximity.</p>
 <p>The <em>move</em> style displaces the group of atoms by the specified 3d
-distance.</p>
+displacement vector.  Any of the 3 quantities defining the vector
+components can be specified as an equal-style or atom-style
+<a class="reference internal" href="variable.html"><em>variable</em></a>.  If the value is a variable, it should be
+specified as v_name, where name is the variable name.  In this case,
+the variable will be evaluated, and its value(s) used for the
+displacement(s).  The scale factor implied by the <em>units</em> keyword will
+also be applied to the variable result.</p>
+<p>Equal-style variables can specify formulas with various mathematical
+functions, and include <a class="reference internal" href="thermo_style.html"><em>thermo_style</em></a> command
+keywords for the simulation box parameters and timestep and elapsed
+time.  Atom-style variables can specify the same formulas as
+equal-style variables but can also include per-atom values, such as
+atom coordinates or per-atom values read from a file.  Note that if
+the variable references other <a class="reference internal" href="compute.html"><em>compute</em></a> or <a class="reference internal" href="fix.html"><em>fix</em></a>
+commands, those values must be up-to-date for the current timestep.
+See the &#8220;Variable Accuracy&#8221; section of the <a class="reference internal" href="variable.html"><em>variable</em></a>
+doc page for more details.</p>
 <p>The <em>ramp</em> style displaces atoms a variable amount in one dimension
 depending on the atom&#8217;s coordinate in a (possibly) different
 dimension.  For example, the second example command displaces atoms in
@@ -201,27 +218,27 @@ style are determined by the setting of <em>box</em> or <em>lattice</em> for the
 <a class="reference internal" href="lattice.html"><em>lattice</em></a> command must have been previously used to
 define the lattice spacing.</p>
 <hr class="docutils" />
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Care should be taken not to move atoms on top of other
-atoms.  After the move, atoms are remapped into the periodic
-simulation box if needed, and any shrink-wrap boundary conditions (see
-the <a class="reference internal" href="boundary.html"><em>boundary</em></a> command) are enforced which may change
-the box size.  Other than this effect, this command does not change
-the size or shape of the simulation box.  See the
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Care should be taken not to move atoms on top of other atoms.
+After the move, atoms are remapped into the periodic simulation box if
+needed, and any shrink-wrap boundary conditions (see the
+<a class="reference internal" href="boundary.html"><em>boundary</em></a> command) are enforced which may change the
+box size.  Other than this effect, this command does not change the
+size or shape of the simulation box.  See the
 <a class="reference internal" href="change_box.html"><em>change_box</em></a> command if that effect is desired.</p>
 </div>
-<div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">Atoms can be moved arbitrarily long distances by this
-command.  If the simulation box is non-periodic and shrink-wrapped
-(see the <a class="reference internal" href="boundary.html"><em>boundary</em></a> command), this can change its size
-or shape.  This is not a problem, except that the mapping of
-processors to the simulation box is not changed by this command from
-its initial 3d configuration; see the <a class="reference internal" href="processors.html"><em>processors</em></a>
-command.  Thus, if the box size/shape changes dramatically, the
-mapping of processors to the simulation box may not end up as optimal
-as the initial mapping attempted to be.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Atoms can be moved arbitrarily long distances by this command.
+If the simulation box is non-periodic and shrink-wrapped (see the
+<a class="reference internal" href="boundary.html"><em>boundary</em></a> command), this can change its size or shape.
+This is not a problem, except that the mapping of processors to the
+simulation box is not changed by this command from its initial 3d
+configuration; see the <a class="reference internal" href="processors.html"><em>processors</em></a> command.  Thus, if
+the box size/shape changes dramatically, the mapping of processors to
+the simulation box may not end up as optimal as the initial mapping
+attempted to be.</p>
 </div>
 </div>
 <hr class="docutils" />
@@ -251,7 +268,7 @@ as the initial mapping attempted to be.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright .
+        &copy; Copyright 2013 Sandia Corporation.
     </p>
   </div>
   Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
@@ -272,7 +289,7 @@ as the initial mapping attempted to be.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'15 May 2015 version',
+            VERSION:'15 Dec 2015',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
