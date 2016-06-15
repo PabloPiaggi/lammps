@@ -10,10 +10,15 @@
 #include "group.h"
 #include "fix_plumed.h"
 #include "universe.h"
+#include "compute.h"
+#include "modify.h"
+#include "pair.h"
 
 using namespace LAMMPS_NS;
 using namespace PLMD;
 using namespace FixConst;
+
+#define INVOKED_SCALAR 1
 
 FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
   Fix(lmp, narg, arg),
@@ -39,7 +44,7 @@ FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
      if (me == 0) {
         // The inter-partition communicator is only defined for the root in
         //    each partition (a.k.a. world). This is due to the way in which
-        //    defined inside plumed.
+        //    it is defined inside plumed.
         p->cmd("GREX setMPIIntercomm",&inter_comm);
      }
      p->cmd("GREX init",NULL);
@@ -129,6 +134,12 @@ FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
 // This is the real initialization:
   p->cmd("init");
 
+// Define compute to calculate potential energy
+  char *id_pe = (char *) "thermo_pe";
+  int ipe = modify->find_compute(id_pe);
+  c_pe = modify->compute[ipe];
+  // Trigger computation of potential energy every step
+  c_pe->addstep(update->ntimestep+1);
 }
 
 FixPlumed::~FixPlumed()
@@ -229,6 +240,20 @@ void FixPlumed::post_force(int vflag)
   if(atom->q) p->cmd("setCharges",&charges[0]);
   p->cmd("setVirial",&virial[0][0]);
   p->cmd("getBias",&bias);
+
+// pass the energy
+  double pot_energy = 0.;
+  c_pe->compute_scalar();
+  c_pe->invoked_flag |= INVOKED_SCALAR;
+  pot_energy = c_pe->scalar;
+  int nprocs;
+  // Divide energy by number of processors 
+  // Plumed wants it this way
+  MPI_Comm_size(world,&nprocs);
+  pot_energy /= nprocs;
+  p->cmd("setEnergy",&pot_energy);
+  // Trigger computation of potential energy every step
+  c_pe->addstep(update->ntimestep+1);
 
 // do the real calculation:
   p->cmd("calc");

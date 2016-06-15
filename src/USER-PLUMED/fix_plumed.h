@@ -9,6 +9,7 @@ FixStyle(plumed,FixPlumed)
 #define LMP_FIX_PLUMED_H
 
 #include "fix.h"
+#include "compute.h"
 // the plumed header that defines the class//
 #include "../Plumed.h"
 
@@ -42,6 +43,8 @@ class FixPlumed : public Fix {
   int nlevels_respa;
 // output bias potential
   double bias;
+// Compute for the energy
+  class Compute *c_pe; 
 };
 
 };
