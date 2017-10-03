@@ -54,7 +54,7 @@ class FixWallHydrophobic : public Fix {
   char *varstr[6];
   int varindex[6];
   double coeff1[6],coeff2[6],coeff3[6],coeff4[6],offset[6];
-  double lambda[6], sigmaS[6];
+  double lambda[6], z0[6];
   double epsilon[6],sigma[6],cutoff[6];
   double ewall[7],ewall_all[7];
   double xscale,yscale,zscale;

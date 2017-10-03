@@ -40,6 +40,7 @@ FixWallHydrophobic::FixWallHydrophobic(LAMMPS *lmp, int narg, char **arg) :
   Fix(lmp, narg, arg),
   nwall(0)
 {
+  // The inputs after the xlo keyword are position epsilon sigma lambda cutoff
   scalar_flag = 1;
   vector_flag = 1;
   global_freq = 1;
@@ -114,10 +115,9 @@ FixWallHydrophobic::FixWallHydrophobic(LAMMPS *lmp, int narg, char **arg) :
       }
 
       lambda[nwall] = force->numeric(FLERR,arg[iarg+4]);
-      sigmaS[nwall] = force->numeric(FLERR,arg[iarg+5]);
-      cutoff[nwall] = force->numeric(FLERR,arg[iarg+6]);
+      cutoff[nwall] = force->numeric(FLERR,arg[iarg+5]);
       nwall++;
-      iarg += 7;
+      iarg += 6;
 
     } else if (strcmp(arg[iarg],"units") == 0) {
       if (iarg+2 > narg) error->all(FLERR,"Illegal fix wall command");
@@ -156,6 +156,7 @@ void FixWallHydrophobic::precompute(int m)
   double r2inv = 1.0/(cutoff[m]*cutoff[m]);
   double r6inv = r2inv*r2inv*r2inv;
   offset[m] = r6inv*(coeff3[m]*r6inv - coeff4[m]);
+  z0[m] = pow( 2. , 1./6.)*sigma[m];
 }
 
 /* ----------------------------------------------------------------------
@@ -167,7 +168,7 @@ void FixWallHydrophobic::precompute(int m)
 
 void FixWallHydrophobic::wall_particle(int m, int which, double coord)
 {
-  double delta,rinv,r2inv,r6inv,fwall,W0,W1;
+  double delta,rinv,r2inv,r6inv,fwall,W0,W1,fW0,fW1;
   double vn;
 
   double **x = atom->x;
@@ -193,10 +194,20 @@ void FixWallHydrophobic::wall_particle(int m, int which, double coord)
       rinv = 1.0/delta;
       r2inv = rinv*rinv;
       r6inv = r2inv*r2inv*r2inv;
-      if (delta ) W0 = side * r6inv*(coeff1[m]*r6inv - coeff2[m]) * rinv;
-      fwall = W0 + lambda[m]*W1;
+      if (delta<z0[m]) {
+         fW0 = side * r6inv*(coeff1[m]*r6inv - coeff2[m]) * rinv;
+         fW1 = 0.;
+         W0 = r6inv*(coeff3[m]*r6inv - coeff4[m]) + epsilon[m];
+         W1 = - epsilon[m];
+      } else {
+         fW0 = 0.;
+         fW1 = side * r6inv*(coeff1[m]*r6inv - coeff2[m]) * rinv;
+         W0 = 0;
+         W1 = r6inv*(coeff3[m]*r6inv - coeff4[m]);
+      }
+      fwall = fW0 + lambda[m]*fW1;
       f[i][dim] -= fwall;
-      ewall[0] += r6inv*(coeff3[m]*r6inv - coeff4[m]) - offset[m];
+      ewall[0] += W0 + lambda[m]*W1;
       ewall[m+1] += fwall;
 
       if (evflag) {
