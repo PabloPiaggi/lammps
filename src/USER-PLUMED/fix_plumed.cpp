@@ -54,7 +54,7 @@ using namespace FixConst;
 FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
   Fix(lmp, narg, arg),
   p(NULL), nlocal(0), gatindex(NULL), masses(NULL), charges(NULL),
-  id_pe(NULL), id_press(NULL)
+  id_pe(NULL), id_press(NULL), tail_flag(0)
 {
 
   if (!atom->tag_enable)
@@ -192,6 +192,12 @@ FixPlumed::FixPlumed(LAMMPS *lmp, int narg, char **arg) :
     } else if (next==2) {
       p->cmd("setPlumedDat",arg[i]);
       next=0;
+    } else if (strcmp(arg[i],"tail") == 0) {
+      if (i+2 > narg) error->all(FLERR,"Illegal pair_modify command");
+      if (strcmp(arg[i+1],"yes") == 0) tail_flag = 1;
+      else if (strcmp(arg[i+1],"no") == 0) tail_flag = 0;
+      else error->all(FLERR,"Illegal pair_modify command");
+      i += 1;
     } else error->all(FLERR,"Syntax error - use 'fix <fix-ID> plumed "
                       "plumedfile plumed.dat outfile plumed.out' ");
   }
@@ -434,17 +440,24 @@ void FixPlumed::post_force(int /* vflag */)
   // Pass potential energy and virial if needed
   double *virial_lmp;
   if (plumedNeedsEnergy) {
-    // Error if tail corrections are included
-    if (force->pair && force->pair->tail_flag && comm->me == 0)
-      error->warning(FLERR,"Tail corrections to the pair potential included."
-                     " The energy cannot be biased correctly in this case."
-                     " Remove the tail corrections by removing the"
-                     " command: pair_modify tail yes");
+    // Error if "tail yes" but no tail corrections exist
+    if (tail_flag && force->pair && !force->pair->tail_flag && comm->me == 0)
+      error->all(FLERR,"Cannot pass energy with tail corrections if the "
+                     " pair potential does not include them. Remove the "
+                     " tail yes option from input");
 
     // compute the potential energy
     double pot_energy = 0.;
     c_pe->compute_scalar();
     pot_energy = c_pe->scalar;
+
+    // Subtract tail corrections unless specified otherwise.
+    // Subtracting the tail corrections is mandatory if the
+    // energy is biased.
+    if (!tail_flag && force->pair && force->pair->tail_flag) {
+      double volume = domain->xprd * domain->yprd * domain->zprd;
+      pot_energy -= force->pair->etail / volume;
+    }
 
     // Divide energy by number of processes
     // Plumed wants it this way

@@ -60,6 +60,8 @@ class FixPlumed : public Fix {
   int plumedNeedsEnergy;   // Flag to trigger calculation of the
                            // energy and virial
   char  *id_pe, *id_press; // ID for potential energy and pressure compute
+  int tail_flag;           // flag to control output of tail corrections 
+                           // to energy
 };
 
 };
