@@ -441,9 +441,9 @@ void FixPlumed::post_force(int /* vflag */)
   double *virial_lmp;
   if (plumedNeedsEnergy) {
     // Error if "tail yes" but no tail corrections exist
-    if (tail_flag && force->pair && !force->pair->tail_flag && comm->me == 0)
-      error->all(FLERR,"Cannot pass energy with tail corrections if the "
-                     " pair potential does not include them. Remove the "
+    if (tail_flag && force->pair && !force->pair->tail_flag)
+      error->all(FLERR,"Cannot use energy with tail corrections if the"
+                     " pair potential does not include them. Remove the"
                      " tail yes option from input");
 
     // compute the potential energy

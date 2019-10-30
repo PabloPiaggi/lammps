@@ -14,9 +14,10 @@ fix ID group-ID plumed keyword value ... :pre
 
 ID, group-ID are documented in "fix"_fix.html command :ulb,l
 plumed = style name of this fix command :l
-keyword = {plumedfile} or {outfile} :l
+keyword = {plumedfile} or {outfile} or {tail} :l
   {plumedfile} arg = name of PLUMED input file to use (default: NULL)
-  {outfile} arg = name of file on which to write the PLUMED log (default: NULL) :pre
+  {outfile} arg = name of file on which to write the PLUMED log (default: NULL)
+  {tail} value = {yes} or {no} :pre
 :ule
 
 [Examples:]
@@ -71,6 +72,15 @@ information that is contained in the input file to confirm it was
 correctly read and parsed.  The names of the files in which the results
 are stored from the various analysis options performed by PLUMED will
 be specified by the user in the PLUMED input file.
+
+When the {tail} keyword is set to {yes}, lammps will pass to PLUMED the 
+potential energy with tail corrections. By default the {tail} keyword is 
+set to {no} since the energy used as collective variable to construct a
+bias potential cannot include tail corrections.
+ 
+NOTE: Passing the energy with tail corrections ({tail yes} option) to 
+PLUMED and biasing the energy will lead to non-sensical dynamics and 
+should be avoided.
 
 [Restart, fix_modify, output, run start/stop, minimize info:]
 
